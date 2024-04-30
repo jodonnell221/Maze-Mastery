@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Powerup
   - Item
+  - hurt
   layers:
   - Default
   - TransparentFX

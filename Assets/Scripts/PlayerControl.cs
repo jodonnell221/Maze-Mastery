@@ -6,7 +6,7 @@ using TMPro;
 
 public class PlayerControl : MonoBehaviour
 {
-    private Rigidbody rb; 
+    private Rigidbody rb;
     private CharacterController controller;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
@@ -22,8 +22,20 @@ public class PlayerControl : MonoBehaviour
     public TextMeshProUGUI powerText;
     public TextMeshProUGUI itemText;
 
+    // Reference to the health controller
+    public HealthController healthController;
+
     private void Start()
     {
+        // Find and assign the HealthController component
+        healthController = GetComponent<HealthController>();
+
+        // Check if the reference is null after initialization
+        if (healthController == null)
+        {
+            Debug.LogError("HealthController reference is not set!");
+        }
+
         rb = GetComponent<Rigidbody>();
         controller = gameObject.AddComponent<CharacterController>();
         power = "None";
@@ -90,6 +102,12 @@ public class PlayerControl : MonoBehaviour
             item = other.gameObject.name;
             SetItemText();
         }
+
+        // Check if the player collides with a wall
+        if (other.gameObject.CompareTag("hurt"))
+        {
+            healthController.TakeDamage(10.0f); // Adjust the amount of damage as needed
+        }
     }
 
     void SetPowerText()
@@ -102,5 +120,3 @@ public class PlayerControl : MonoBehaviour
         itemText.text = "Item: " + item;
     }
 }
-
-
