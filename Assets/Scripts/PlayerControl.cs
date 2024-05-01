@@ -27,10 +27,10 @@ public class PlayerControl : MonoBehaviour
 
     private void Start()
     {
-        // Find and assign the HealthController component
+        // Initialize the HealthController component
         healthController = GetComponent<HealthController>();
 
-        // Check if the reference is null after initialization
+        // Check if the HealthController component is attached
         if (healthController == null)
         {
             Debug.LogError("HealthController reference is not set!");
@@ -38,14 +38,15 @@ public class PlayerControl : MonoBehaviour
 
         rb = GetComponent<Rigidbody>();
         controller = gameObject.AddComponent<CharacterController>();
-        power = "None";
-        SetPowerText();
-        item = "None";
-        SetItemText();
+        power = "None"; // Initial power setting
+        SetPowerText(); // Update power display
+        item = "None";  // Initial item setting
+        SetItemText();  // Update item display
     }
 
     void Update()
     {
+        // Determine the number of jumps available based on power status
         if (power == "Double Jump" && groundedPlayer)
         {
             jumps = 2;
@@ -55,20 +56,24 @@ public class PlayerControl : MonoBehaviour
             jumps = 1;
         }
 
+        // Update grounding status and reset vertical velocity if grounded
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
 
+        // Handle horizontal movement
         Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         controller.Move(move * Time.deltaTime * playerSpeed);
 
+        // Align player to the moving direction
         if (move != Vector3.zero)
         {
             gameObject.transform.forward = move;
         }
 
+        // Handle jumping
         if (Input.GetButtonDown("Jump"))
         {
             if (!groundedPlayer)
@@ -83,12 +88,14 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
+        // Apply gravity to player velocity and move the player
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
     }
 
     void OnTriggerEnter(Collider other)
     {
+        // Collect power-ups and items, and deactivate them
         if (other.gameObject.CompareTag("Powerup"))
         {
             other.gameObject.SetActive(false);
@@ -103,18 +110,20 @@ public class PlayerControl : MonoBehaviour
             SetItemText();
         }
 
-        // Check if the player collides with a wall
+        // Take damage if collides with a hurtful object
         if (other.gameObject.CompareTag("hurt"))
         {
-            healthController.TakeDamage(10.0f); // Adjust the amount of damage as needed
+            healthController.TakeDamage(10.0f); // Specify damage amount
         }
     }
+    // Update the power text UI
 
     void SetPowerText()
     {
         powerText.text = "Power: " + power;
     }
 
+    // Update the item text UI
     void SetItemText()
     {
         itemText.text = "Item: " + item;

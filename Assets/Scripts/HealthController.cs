@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class HealthController : MonoBehaviour
 {
     public Image healthBarImage; // Assign this in the Inspector
-    public float health = 100f;
-    private float maxHealth = 100f;
+    public float health = 100f; //starting health
+    private float maxHealth = 100f; //max health
 
     // Call this method to reduce health
     public void TakeDamage(float damageAmount)
