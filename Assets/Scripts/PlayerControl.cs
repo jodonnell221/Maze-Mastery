@@ -7,7 +7,7 @@ using TMPro;
 public class PlayerControl : MonoBehaviour
 {
     private Rigidbody rb;
-    private CharacterController controller;
+    public CharacterController controller;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
     private float playerSpeed = 2.0f;
@@ -17,7 +17,7 @@ public class PlayerControl : MonoBehaviour
 
     private int jumps;
 
-    private string power;
+    private List<string> power = new List<string>(5);
     private string item;
 
     public TextMeshProUGUI powerText;
@@ -38,8 +38,8 @@ public class PlayerControl : MonoBehaviour
         }
 
         rb = GetComponent<Rigidbody>();
-        controller = gameObject.GetComponent<CharacterController>();
-        power = "None"; // Initial power setting
+        controller = gameObject.AddComponent<CharacterController>();
+        
         SetPowerText(); // Update power display
         item = "None";  // Initial item setting
         SetItemText();  // Update item display
@@ -65,7 +65,7 @@ public class PlayerControl : MonoBehaviour
         }
 
 
-        if ((Input.GetButtonDown("Jump")) && (power == "None"))
+        if ((Input.GetButtonDown("Jump")) && (power.Count == 0))
         {
             if (groundedPlayer)
             {
@@ -73,7 +73,7 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-        if ((Input.GetButtonDown("Jump")) && (power == "Double Jump"))
+        if ((Input.GetButtonDown("Jump")) && (power.Contains("Double Jump")))
         {
             if (groundedPlayer)
             {
@@ -87,11 +87,13 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-        if ((Input.GetButton("Jump")) && (power == "Flight"))
+        if ((Input.GetButton("Jump")) && (power.Contains("Flight")))
         { 
             playerVelocity.y += Mathf.Sqrt(jumpHeight * -0.01f * gravityValue);               
 
         }
+      
+
 
         // Apply gravity to player velocity and move the player
         playerVelocity.y += gravityValue * Time.deltaTime;
@@ -104,7 +106,7 @@ public class PlayerControl : MonoBehaviour
         if (other.gameObject.CompareTag("Powerup"))
         {
             other.gameObject.SetActive(false);
-            power = other.gameObject.name;
+            power.Add(other.gameObject.name);
             SetPowerText();
         }
 
@@ -120,12 +122,24 @@ public class PlayerControl : MonoBehaviour
         {
             healthController.TakeDamage(10.0f); // Specify damage amount
         }
+
+        if (other.gameObject.CompareTag("Exit"))
+        {
+            if (item == "Key")
+            {
+                Application.LoadLevel(0);
+            }
+        }
     }
     // Update the power text UI
 
     void SetPowerText()
     {
-        powerText.text = "Power: " + power;
+        powerText.text = "Power: ";
+        foreach (string powerup in power)
+        {
+            powerText.text += " " + powerup;
+        }
     }
 
     // Update the item text UI
