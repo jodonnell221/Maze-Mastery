@@ -13,6 +13,7 @@ public class PlayerControl : MonoBehaviour
     private float playerSpeed = 2.0f;
     private float jumpHeight = 1.0f;
     private float gravityValue = -9.81f;
+    bool second_jump = false;
 
     private int jumps;
 
@@ -37,7 +38,7 @@ public class PlayerControl : MonoBehaviour
         }
 
         rb = GetComponent<Rigidbody>();
-        controller = gameObject.AddComponent<CharacterController>();
+        controller = gameObject.GetComponent<CharacterController>();
         power = "None"; // Initial power setting
         SetPowerText(); // Update power display
         item = "None";  // Initial item setting
@@ -46,16 +47,6 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        // Determine the number of jumps available based on power status
-        if (power == "Double Jump" && groundedPlayer)
-        {
-            jumps = 2;
-        }
-        else if (groundedPlayer)
-        {
-            jumps = 1;
-        }
-
         // Update grounding status and reset vertical velocity if grounded
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
@@ -73,19 +64,33 @@ public class PlayerControl : MonoBehaviour
             gameObject.transform.forward = move;
         }
 
-        // Handle jumping
-        if (Input.GetButtonDown("Jump"))
-        {
-            if (!groundedPlayer)
-            {
-                jumps -= 1;
-            }
 
-            if (jumps > 0)
+        if ((Input.GetButtonDown("Jump")) && (power == "None"))
+        {
+            if (groundedPlayer)
             {
                 playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
-                jumps -= 1;
             }
+        }
+
+        if ((Input.GetButtonDown("Jump")) && (power == "Double Jump"))
+        {
+            if (groundedPlayer)
+            {
+                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+                second_jump = true;
+            }
+            else if (second_jump == true)
+            {
+                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+                second_jump = false;               
+            }
+        }
+
+        if ((Input.GetButton("Jump")) && (power == "Flight"))
+        { 
+            playerVelocity.y += Mathf.Sqrt(jumpHeight * -0.01f * gravityValue);               
+
         }
 
         // Apply gravity to player velocity and move the player
